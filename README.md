@@ -1,44 +1,48 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# To Mars (LD43)
 
-## Available Scripts
+Theme: Sacrifices must be made
+Pitch: The Oregon Trail, except a flight to Mars (AKA Interstellar: the 48 hour game jam game)
 
-In the project directory, you can run:
+# Story
 
-### `npm start`
+You are in command of a rocket, launched just before a large meteor strikes Earth making it uninhabitable. Your ship, crew, and cargo are the only hope for humanity's survival. The meteor's threat was discovered less than a year ago, and your ship is underdeveloped and underequipped for the journey. Along the way you can expect new challenges to present themselves, and it is only through your leadership that you and your crew can hope to survive. The path will be arduous and require many sacrifices, only to deliver a small hope of the survival of the species.
 
-Runs the app in the development mode.<br>
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+# Mechanics
 
-The page will reload if you make edits.<br>
-You will also see any lint errors in the console.
+1. Balance of resources
 
-### `npm test`
+You have 50 crew, a cargo bay full of food, medical supplies, and thousands of frozen human embryos necessary for repopulation on Mars. Your rocket has a small surplus of fuel beyond what is necessary for the reverse-burn to enter Mars orbit and land on the surface. The ship's electrical system is powered through solar panels, but one of them is not functioning, leaving you with a shortage of energy.
 
-Launches the test runner in the interactive watch mode.<br>
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+How will you allocate your limited resources?
 
-### `npm run build`
+Details:
+  * Crew: 50
+  * Food: Start with `x` rations, on board growth handles the rest
+  * Energy: `x` capacity
+  * Embryos: 10,000
 
-Builds the app for production to the `build` folder.<br>
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Energy drains:
+  * Food production
+  * Embryo cryo storage
+  * Third thingie... but what?
 
-The build is minified and the filenames include the hashes.<br>
-Your app is ready to be deployed!
+End game scenarios:
+  * Crew size:
+    > 25: Mars settlement thrives
+    > 8: Minimum viable crew to grow colony from embryos
+    fewer: Despair and the survivors die within a year
+  * Embryos:
+    > 4000: Humanity makes a full recovery
+    > 1000: The colony survives but lives harsh, difficult lives
+    fewer: Within two generations there is a population collapse, dooming humanity
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+2. Events
 
-### `npm run eject`
+Along the way, several events will occur, prompting decisions that will force more tradeoffs of resources. Ideas:
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+* More equipment failures on the rocket
+* Crew member inadvertently carried a virus on board
+* Meteor's impact with earth alters the effects of gravity enough to require a burn of the rocket to correct trajectory
+* A crew member, overcome with grief at the loss of family and Earth itself, and pessimistic about the mission, commits suicide. Morale plummets and others are at risk of the same.
+* The rocket collides with space junk on the way out of earth orbit, requiring a team to space walk for a fix.
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
