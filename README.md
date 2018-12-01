@@ -45,4 +45,5 @@ Along the way, several events will occur, prompting decisions that will force mo
 * Meteor's impact with earth alters the effects of gravity enough to require a burn of the rocket to correct trajectory
 * A crew member, overcome with grief at the loss of family and Earth itself, and pessimistic about the mission, commits suicide. Morale plummets and others are at risk of the same.
 * The rocket collides with space junk on the way out of earth orbit, requiring a team to space walk for a fix.
+* Pressure leak
 
