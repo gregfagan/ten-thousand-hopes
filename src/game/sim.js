@@ -14,18 +14,19 @@ import {
   curry,
   over,
   compose,
+  set,
   multiply,
   when,
-  min,
   is,
   applyTo,
   view,
   negate,
 } from 'ramda'
-import { removeUnlessLast, rand } from '../ramda-ext'
+import { removeUnlessLast, rand, clamp } from '../ramda-ext'
 import { power } from './power'
 
 const START_DATE = new Date(Date.UTC(2085, 11, 2))
+const WASTE_BUILDUP_RATE = 0.25
 const FOOD_GROWTH_RATE = (100 * 2) / 3
 const EMBRYO_THAW_RATE = 385
 
@@ -62,6 +63,23 @@ const passTime = evolve({ time: inc })
 const crew = lensPath(['ship', 'crew'])
 export const kill = count => over(crew, subtract(__, count))
 
+const waste = lensPath(['ship', 'waste'])
+const recycleWaste = chain(
+  set(waste),
+  compose(
+    clamp(0, 1),
+    converge(add, [
+      view(waste),
+      compose(
+        rand(0.2),
+        multiply(2 * WASTE_BUILDUP_RATE),
+        subtract(0.5),
+        power('lifeSupport'),
+      ),
+    ]),
+  ),
+)
+
 const food = lensPath(['ship', 'food'])
 const growFood = chain(
   over(food),
@@ -84,15 +102,15 @@ const eatFood = chain(
 
 const embryos = lensPath(['ship', 'embryos'])
 const refridgerateEmbryos = chain(
-  over(embryos),
+  set(embryos),
   compose(
-    add,
-    negate,
-    converge(min, [
+    clamp(0, Infinity),
+    converge(add, [
       view(embryos),
       compose(
+        negate,
         Math.round,
-        rand(0.1),
+        rand(0.05),
         multiply(EMBRYO_THAW_RATE),
         subtract(1),
         power('cryoStorage'),
@@ -122,8 +140,9 @@ export const nextEvent = state => {
 // Step the simulation
 export default pipe(
   passTime,
-  refridgerateEmbryos,
+  recycleWaste,
   growFood,
   eatFood,
+  refridgerateEmbryos,
   nextEvent,
 )

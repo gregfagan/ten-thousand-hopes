@@ -9,6 +9,8 @@ import {
   defaultTo,
   prop,
   multiply,
+  min,
+  max,
   identity,
   add,
   converge,
@@ -42,3 +44,9 @@ export const rand = variance =>
     ),
     identity,
   ])
+
+export const clamp = (lower, upper) =>
+  compose(
+    min(upper),
+    max(lower),
+  )
