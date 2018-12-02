@@ -2,29 +2,15 @@ import {
   propEq,
   pipe,
   identity,
-  when,
   always,
   T,
   prepend,
   evolve,
-  compose,
-  not,
-  either,
-  both,
-  unless,
-  isNil,
-  partialRight,
-  __,
   ifElse,
 } from 'ramda'
 import initialState from './state'
 import step, { nextEvent, kill } from './sim'
 import { reallocate } from './power'
-
-const isNotNil = compose(
-  not,
-  isNil,
-)
 
 const event = (
   description,
@@ -61,7 +47,7 @@ const option = (
 })
 
 const terminalEvents = [
-  event('You have arrived at Mars.', propEq('time', 5), [
+  event('You have arrived at Mars.', propEq('time', 50), [
     option('Start over', undefined, () => initialState, false),
   ]),
 ]

@@ -6,12 +6,10 @@ import { needsPowerManagement, power, divertTo } from './game/power'
 
 const Status = ({ state, dispatch }) => {
   const {
-    time,
     ship: { crew, food, embryos },
   } = state
   return (
     <div className="status">
-      <div>Week: {time}</div>
       <div>Crew: {crew}</div>
       <div>Food: {food}</div>
       <div>Embryos: {embryos}</div>

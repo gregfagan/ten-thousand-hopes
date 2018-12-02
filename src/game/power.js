@@ -2,14 +2,9 @@ import {
   __,
   identity,
   assoc,
-  assocPath,
   inc,
   dec,
   evolve,
-  pipe,
-  findIndex,
-  nth,
-  subtract,
   lensPath,
   equals,
   chain,
@@ -21,14 +16,10 @@ import {
   curry,
   over,
   compose,
-  multiply,
   prop,
   sum,
   values,
   both,
-  when,
-  is,
-  applyTo,
   T,
   lt,
   gt,
@@ -36,9 +27,9 @@ import {
   view,
 } from 'ramda'
 
-const allocations = lensPath(['ship', 'power'])
+export const allocations = lensPath(['ship', 'power'])
 
-const allocation = system =>
+export const allocation = system =>
   compose(
     prop(system),
     view(allocations),

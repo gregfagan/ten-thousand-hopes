@@ -1,43 +1,34 @@
 import {
   __,
-  identity,
   assoc,
-  assocPath,
   inc,
-  dec,
   evolve,
   pipe,
   findIndex,
   nth,
   subtract,
   lensPath,
-  equals,
   chain,
-  divide,
   converge,
   add,
   curry,
   over,
   compose,
   multiply,
-  prop,
-  sum,
-  values,
-  both,
   when,
+  min,
   is,
   applyTo,
-  T,
-  lt,
-  gt,
-  cond,
   view,
+  negate,
 } from 'ramda'
-import { removeUnlessLast } from '../ramda-ext'
+import { removeUnlessLast, rand } from '../ramda-ext'
 import { power } from './power'
 
-const FOOD_GROWTH_RATE = 40
 const START_DATE = new Date(Date.UTC(2085, 11, 2))
+const FOOD_GROWTH_RATE = (100 * 2) / 3
+const EMBRYO_THAW_RATE = 385
+
 const formatDate = date =>
   date.toLocaleDateString('en-us', {
     timeZone: 'UTC',
@@ -46,6 +37,7 @@ const formatDate = date =>
     day: 'numeric',
     weekday: 'long',
   })
+
 const weeksLater = (weeks, randomDayOfWeek = true) => {
   const newDate = new Date(START_DATE)
   const dayOfWeek = randomDayOfWeek ? Math.round(Math.random() * 6) : 0
@@ -53,6 +45,7 @@ const weeksLater = (weeks, randomDayOfWeek = true) => {
   newDate.setUTCDate(newDate.getUTCDate() + days)
   return newDate
 }
+
 export const formatTime = compose(
   formatDate,
   weeksLater,
@@ -66,22 +59,47 @@ const log = curry((time, supplemental = false) => description =>
 
 const passTime = evolve({ time: inc })
 
-const food = lensPath(['ship', 'food'])
-// const growFood = chain(
-//   over(food),
-//   add(
-//     compose(
-//       Math.round,
-//       multiply(FOOD_GROWTH_RATE),
-//       power('hydroponics'),
-//     ),
-//   ),
-// )
-const growFood = identity
-const eatFood = state =>
-  assocPath(['ship', 'food'], state.ship.food - state.ship.crew)(state)
+const crew = lensPath(['ship', 'crew'])
+export const kill = count => over(crew, subtract(__, count))
 
-const refridgerateEmbryos = identity
+const food = lensPath(['ship', 'food'])
+const growFood = chain(
+  over(food),
+  compose(
+    add,
+    Math.round,
+    multiply(FOOD_GROWTH_RATE),
+    power('hydroponics'),
+  ),
+)
+
+const eatFood = chain(
+  over(food),
+  compose(
+    add,
+    negate,
+    view(crew),
+  ),
+)
+
+const embryos = lensPath(['ship', 'embryos'])
+const refridgerateEmbryos = chain(
+  over(embryos),
+  compose(
+    add,
+    negate,
+    converge(min, [
+      view(embryos),
+      compose(
+        Math.round,
+        rand(0.1),
+        multiply(EMBRYO_THAW_RATE),
+        subtract(1),
+        power('cryoStorage'),
+      ),
+    ]),
+  ),
+)
 
 export const nextEvent = state => {
   const eventIdx = findIndex(event => event.condition(state))(
@@ -100,9 +118,6 @@ export const nextEvent = state => {
     evolve({ possibleEvents: removeUnlessLast(eventIdx) }),
   )(state)
 }
-
-const crew = lensPath(['ship', 'crew'])
-export const kill = count => over(crew, subtract(__, count))
 
 // Step the simulation
 export default pipe(

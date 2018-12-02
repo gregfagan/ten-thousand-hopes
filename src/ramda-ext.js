@@ -8,6 +8,11 @@ import {
   length,
   defaultTo,
   prop,
+  multiply,
+  identity,
+  add,
+  converge,
+  pipe,
 } from 'ramda'
 
 export const isLast = index =>
@@ -27,3 +32,13 @@ export const defaultForProp = (p, d) =>
 export const assocDefaultForProp = curry((p, d, obj) =>
   assoc(p, defaultForProp(p, d)(obj))(obj),
 )
+
+export const rand = variance =>
+  converge(multiply, [
+    pipe(
+      Math.random,
+      multiply(variance),
+      add(1 - variance / 2),
+    ),
+    identity,
+  ])

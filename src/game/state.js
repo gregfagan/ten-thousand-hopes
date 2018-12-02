@@ -6,7 +6,7 @@ export default nextEvent({
 
   ship: {
     crew: 50,
-    food: 100,
+    food: 800,
     embryos: 10000,
     waste: 0,
 
