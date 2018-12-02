@@ -1,24 +1,40 @@
 import {
+  __,
   identity,
   assoc,
   assocPath,
   inc,
+  dec,
   evolve,
   pipe,
   findIndex,
   nth,
-  __,
   subtract,
   lensPath,
+  equals,
+  chain,
+  divide,
+  converge,
+  add,
   curry,
   over,
   compose,
+  multiply,
   prop,
+  sum,
+  values,
+  both,
   when,
   is,
   applyTo,
+  T,
+  lt,
+  gt,
+  cond,
+  view,
 } from 'ramda'
 import { removeUnlessLast } from '../ramda-ext'
+import { power } from './power'
 
 const FOOD_GROWTH_RATE = 40
 const START_DATE = new Date(Date.UTC(2085, 11, 2))
@@ -50,13 +66,18 @@ const log = curry((time, supplemental = false) => description =>
 
 const passTime = evolve({ time: inc })
 
-const growFood = state =>
-  assocPath(
-    ['ship', 'food'],
-    state.ship.food +
-      Math.round(state.ship.power.allocation.hydroponics * FOOD_GROWTH_RATE),
-  )(state)
-
+const food = lensPath(['ship', 'food'])
+// const growFood = chain(
+//   over(food),
+//   add(
+//     compose(
+//       Math.round,
+//       multiply(FOOD_GROWTH_RATE),
+//       power('hydroponics'),
+//     ),
+//   ),
+// )
+const growFood = identity
 const eatFood = state =>
   assocPath(['ship', 'food'], state.ship.food - state.ship.crew)(state)
 

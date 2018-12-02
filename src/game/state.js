@@ -2,20 +2,19 @@ import { nextEvent } from './sim'
 import events from './events'
 
 export default nextEvent({
-  time: 0, // what is the unit
+  time: 0, // weeks
 
   ship: {
     crew: 50,
     food: 100,
     embryos: 10000,
+    waste: 0,
 
+    // Power allocations as quarters, i.e. 4/4 is 100%
     power: {
-      capacity: 3,
-      allocation: {
-        hydroponics: 1,
-        cryoStorage: 1,
-        lifeSupport: 1,
-      },
+      hydroponics: 4,
+      cryoStorage: 4,
+      lifeSupport: 4,
     },
   },
 
