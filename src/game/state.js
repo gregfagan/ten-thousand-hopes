@@ -1,5 +1,6 @@
 import { nextEvent } from './sim'
 import events from './events'
+import { FULL_POWER } from './power'
 
 export default nextEvent({
   time: 0, // weeks
@@ -12,9 +13,9 @@ export default nextEvent({
 
     // Power allocations as quarters, i.e. 4/4 is 100%
     power: {
-      lifeSupport: 4,
-      hydroponics: 4,
-      cryoStorage: 4,
+      lifeSupport: FULL_POWER,
+      hydroponics: FULL_POWER,
+      cryoStorage: FULL_POWER,
     },
   },
 

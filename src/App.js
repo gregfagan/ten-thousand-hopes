@@ -2,7 +2,14 @@ import React, { Component } from 'react'
 import './App.css'
 
 import initialState from './game/state'
-import { needsPowerManagement, power, divertTo } from './game/power'
+import {
+  needsPowerManagement,
+  power,
+  canDivertTo,
+  divertTo,
+  canDivertFrom,
+  divertFrom,
+} from './game/power'
 
 const Status = ({ state, dispatch }) => {
   const {
@@ -22,11 +29,33 @@ const Status = ({ state, dispatch }) => {
             Life Support: {power('lifeSupport')(state)}
           </div>
           <div className="row">
-            <button onClick={() => dispatch(divertTo('hydroponics'))}>></button>
+            <button
+              disabled={!canDivertFrom('hydroponics')(state)}
+              onClick={() => dispatch(divertFrom('hydroponics'))}
+            >
+              {'<'}
+            </button>
+            <button
+              disabled={!canDivertTo('hydroponics')(state)}
+              onClick={() => dispatch(divertTo('hydroponics'))}
+            >
+              {'>'}
+            </button>
             Hydroponics: {power('hydroponics')(state)}
           </div>
           <div className="row">
-            <button onClick={() => dispatch(divertTo('cryoStorage'))}>></button>
+            <button
+              disabled={!canDivertFrom('cryoStorage')(state)}
+              onClick={() => dispatch(divertFrom('cryoStorage'))}
+            >
+              {'<'}
+            </button>
+            <button
+              disabled={!canDivertTo('cryoStorage')(state)}
+              onClick={() => dispatch(divertTo('cryoStorage'))}
+            >
+              {'>'}
+            </button>
             Cryo Storage: {power('cryoStorage')(state)}
           </div>
         </div>

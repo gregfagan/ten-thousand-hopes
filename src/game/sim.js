@@ -73,7 +73,7 @@ const recycleWaste = chain(
       compose(
         rand(0.2),
         multiply(2 * WASTE_BUILDUP_RATE),
-        subtract(0.5),
+        subtract(0.55),
         power('lifeSupport'),
       ),
     ]),

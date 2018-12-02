@@ -6,19 +6,15 @@ import {
   dec,
   evolve,
   lensPath,
-  equals,
-  chain,
   divide,
-  min,
-  mathMod,
-  converge,
-  add,
+  not,
   curry,
   over,
   compose,
   prop,
   sum,
   values,
+  omit,
   both,
   T,
   lt,
@@ -26,6 +22,8 @@ import {
   cond,
   view,
 } from 'ramda'
+
+export const FULL_POWER = 4
 
 export const allocations = lensPath(['ship', 'power'])
 
@@ -37,7 +35,7 @@ export const allocation = system =>
 
 export const power = system =>
   compose(
-    divide(__, 4),
+    divide(__, FULL_POWER),
     allocation(system),
   )
 
@@ -47,64 +45,66 @@ export const reallocate = curry((system, amount) =>
 
 const incAllocation = system => over(allocations)(evolve({ [system]: inc }))
 const decAllocation = system => over(allocations)(evolve({ [system]: dec }))
+const otherSystem = system =>
+  system === 'hydroponics' ? 'cryoStorage' : 'hydroponics'
 
-export const divertTo = system => state => {
-  const otherSystem = system === 'hydroponics' ? 'cryoStorage' : 'hydroponics'
-  const current = allocation(system)
-  const other = allocation(otherSystem)
-  const lifeSupport = allocation('lifeSupport')
-
-  const willOverflow = compose(
-    equals(4),
-    current,
-  )
-  const surplus = converge(add, [other, lifeSupport])
-  const overflow = compose(
-    reallocate('lifeSupport', 4),
-    chain(
-      reallocate(otherSystem),
-      compose(
-        min(4),
-        surplus,
-      ),
-    ),
-    chain(
-      reallocate(system),
-      compose(
-        mathMod(__, 4),
-        surplus,
-      ),
-    ),
-  )
-
-  const canDivertFrom = source =>
-    both(
-      compose(
-        lt(__, 4),
-        current,
-      ),
-      compose(
-        gt(__, 0),
-        source,
-      ),
-    )
-
-  const divertFrom = sourceSystem =>
+export const canDivertFrom = source =>
+  both(
     compose(
-      incAllocation(system),
-      decAllocation(sourceSystem),
-    )
+      gt(__, 0),
+      allocation(source),
+    ),
+    compose(
+      lt(__, 2 * FULL_POWER),
+      sum,
+      values,
+      omit([source]),
+      view(allocations),
+    ),
+  )
 
-  return cond([
-    [willOverflow, overflow],
-    [canDivertFrom(lifeSupport), divertFrom('lifeSupport')],
-    [canDivertFrom(other), divertFrom(otherSystem)],
+export const canDivertTo = destination =>
+  compose(
+    lt(__, 4),
+    allocation(destination),
+  )
+
+const divert = (source, destination) =>
+  compose(
+    incAllocation(destination),
+    decAllocation(source),
+  )
+
+export const divertTo = system =>
+  cond([
+    [
+      compose(
+        not,
+        canDivertTo(system),
+      ),
+      identity,
+    ],
+    [canDivertFrom('lifeSupport'), divert('lifeSupport', system)],
+    [canDivertFrom(otherSystem(system)), divert(otherSystem(system), system)],
     [T, identity],
-  ])(state)
-}
+  ])
+
+export const divertFrom = system =>
+  cond([
+    [
+      compose(
+        not,
+        canDivertFrom(system),
+      ),
+      identity,
+    ],
+    [canDivertTo('lifeSupport'), divert(system, 'lifeSupport')],
+    [canDivertTo(otherSystem(system)), divert(system, otherSystem(system))],
+    [T, identity],
+  ])
 
 export const needsPowerManagement = compose(
-  lt(__, 12),
+  lt(__, 3 * FULL_POWER),
   sum,
   values,
   view(allocations),

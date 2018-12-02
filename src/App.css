@@ -36,6 +36,7 @@ button {
   display: inline-block;
   margin-right: 1em;
   padding: 1em;
+  border-radius: 0.25em;
 
   font-size: unset;
   font-family: unset;
@@ -44,6 +45,11 @@ button {
   border: 3px solid red;
   outline: none;
   cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: default;
 }
 
 .spacer,
