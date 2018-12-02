@@ -1,7 +1,7 @@
-import { head, tail } from 'ramda'
+import { nextEvent } from './sim'
 import events from './events'
 
-export default {
+export default nextEvent({
   time: 0, // what is the unit
 
   ship: {
@@ -19,6 +19,6 @@ export default {
     },
   },
 
-  currentEvent: head(events),
-  possibleEvents: tail(events),
-}
+  currentEvent: undefined,
+  possibleEvents: events,
+})

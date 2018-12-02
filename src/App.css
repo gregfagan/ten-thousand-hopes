@@ -1,8 +1,21 @@
 .app {
   color: white;
+  padding: 1em;
   font-size: 24px;
+  white-space: pre-wrap;
 }
 
 .status {
-  white-space: pre;
+}
+
+button {
+  margin: 1em;
+  padding: 1em;
+
+  font-size: 16px;
+  font-family: unset;
+  background: transparent;
+  color: red;
+  border: 3px solid red;
+  outline: none;
 }
