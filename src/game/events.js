@@ -222,7 +222,7 @@ Cryogenics represents the future of the species. Ten thousand human embryos... a
 
 Finally, we have a stockpile of rations, but without fully powering the grow lights and other hydroponics systems, we won't be producing enough food to keep up with consumption. There wasn't enough cargo space for food for the whole trip, plus we'll need the crops when we get to Mars anyway. If we don't keep up with food production, in a couple of months we'll be starving.
 
-Clark says that we can afford to divert some power away from life support to the other systems for a little while, but if the waste builds up we'll need to shift it back. It's going to be a balancing act.
+Clark says that we can afford to divert some power away from life support to the other systems for a little while, but if the supply of breathable air drops too far we'll need to shift it back. It's going to be a balancing act.
 
 Anderson has been studying the imagery from the cameras and drones and thinks that if we could get out there and replace some of the couplers, the panels might still produce enough power to make a difference. Not everything we need, but we'd be better off than we are now.
 
@@ -247,9 +247,9 @@ Their work did restore about a quarter of the original capacity of the array. It
 Anderson and Yorke. Their sacrifice will be remembered.`,
         pipe(
           kill(2),
-          reallocate('hydroponics', 1),
-          reallocate('cryoStorage', 4),
-          reallocate('lifeSupport', 4),
+          reallocate('hydroponics', 2),
+          reallocate('cryoStorage', 2),
+          reallocate('lifeSupport', 3),
         ),
       ),
       option(
@@ -260,9 +260,9 @@ Well, it was good that we didn't send anyone out there. Another large chunk of d
 Let's hope it's not worse.
 `,
         pipe(
-          reallocate('hydroponics', 0),
-          reallocate('cryoStorage', 4),
-          reallocate('lifeSupport', 4),
+          reallocate('hydroponics', 2),
+          reallocate('cryoStorage', 2),
+          reallocate('lifeSupport', 2),
         ),
       ),
     ],
@@ -303,7 +303,7 @@ I'm going to grant Rosenfield his wish. It's the only humane thing to do, and I 
         `
 I have to be realistic. We're barely holding on as it is, and it was tragic what happened to them, but we can't save them now. The less resources we consume the better chance we have of making it to Mars.
 
-Rosenstein will get his wish. Nguyen... I ordered Amin to do it when he was sleeping. I think it's better for him and the rest of us this way.
+Rosenfield will get his wish. Nguyen... I ordered Amin to do it when he was sleeping. I think it's better for him and the rest of us this way.
 
 The others, I can only hope their souls forgive me for what I've done. Sacrifices must be made.
 `,
