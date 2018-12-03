@@ -8,7 +8,7 @@ export default nextEvent({
   ship: {
     crew: 50,
     waste: 0,
-    food: 800,
+    food: 400,
     embryos: 10000,
 
     // Power allocations as quarters, i.e. 4/4 is 100%

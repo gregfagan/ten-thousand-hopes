@@ -1,5 +1,7 @@
 import {
   __,
+  divide,
+  gte,
   assoc,
   inc,
   evolve,
@@ -14,22 +16,29 @@ import {
   curry,
   over,
   compose,
+  o,
   set,
   multiply,
   when,
   is,
   applyTo,
+  ifElse,
   view,
   negate,
   lensProp,
+  lt,
+  gt,
+  always,
+  max,
 } from 'ramda'
-import { removeUnlessLast, rand, clamp } from '../ramda-ext'
+import { removeUnlessLast, rand, clamp, lensSatisfies } from '../ramda-ext'
 import { power } from './power'
 
 const START_DATE = new Date(Date.UTC(2085, 11, 2))
 const WASTE_BUILDUP_RATE = 0.25
 const FOOD_GROWTH_RATE = (100 * 2) / 3
 const EMBRYO_THAW_RATE = 385
+const HUNGER_BEFORE_DEATH = 4
 
 const formatDate = date =>
   date.toLocaleDateString('en-us', {
@@ -63,7 +72,14 @@ export const time = lensProp('time')
 const passTime = evolve({ time: inc })
 
 export const crew = lensPath(['ship', 'crew'])
-export const kill = count => over(crew, subtract(__, count))
+export const kill = count =>
+  compose(
+    over(crew, subtract(__, count)),
+    when(
+      hungry,
+      over(food, chain(add, o(max(count * HUNGER_BEFORE_DEATH), hunger))),
+    ),
+  )
 
 export const waste = lensPath(['ship', 'waste'])
 const recycleWaste = chain(
@@ -93,14 +109,49 @@ const growFood = chain(
   ),
 )
 
-const eatFood = chain(
-  over(food),
-  compose(
-    add,
-    negate,
-    view(crew),
+const eatFood = state => {
+  const people = view(crew)(state)
+
+  return chain(
+    set(food),
+    compose(
+      clamp(people * -1 * HUNGER_BEFORE_DEATH, Infinity),
+      subtract(__, people),
+      view(food),
+    ),
+  )(state)
+}
+
+const hunger = ifElse(
+  lensSatisfies(lt(__, 0), food),
+  pipe(
+    view(food),
+    Math.abs,
   ),
+  always(0),
 )
+
+const hungry = o(gt(__, 0), hunger)
+export const hungerLevel = converge(divide, [
+  hunger,
+  o(multiply(HUNGER_BEFORE_DEATH), view(crew)),
+])
+// const logHunger = state => {
+//   console.log(hunger(state), hungerLevel(state))
+//   return state
+// }
+// const logDeath = deaths => state => {
+//   console.log(deaths + ' dead')
+//   return state
+// }
+const crewStarving = o(gte(__, 1), hungerLevel)
+const starve = state => {
+  const deaths = Math.round(Math.random() * 4)
+  return pipe(
+    // logHunger,
+    when(crewStarving, kill(deaths)),
+  )(state)
+}
 
 export const embryos = lensPath(['ship', 'embryos'])
 const refridgerateEmbryos = chain(
@@ -154,6 +205,7 @@ export default pipe(
   recycleWaste,
   growFood,
   eatFood,
+  starve,
   refridgerateEmbryos,
   nextEvent,
 )

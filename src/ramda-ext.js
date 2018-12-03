@@ -47,11 +47,12 @@ export const rand = variance =>
     identity,
   ])
 
-export const clamp = (lower, upper) =>
+export const clamp = curry((lower, upper) =>
   compose(
     min(upper),
     max(lower),
-  )
+  ),
+)
 
 // from the cookbook
 export const lensEq = curryN(3, (lens, val, data) =>

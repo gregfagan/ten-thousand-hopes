@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 import './App.css'
 
 import initialState from './game/state'
+import { hungerLevel } from './game/sim'
+
 import {
   needsPowerManagement,
   power,
@@ -19,7 +21,11 @@ const Status = ({ state, dispatch }) => {
     <div className="status">
       <div>Crew: {crew}</div>
       <div>Waste: {waste.toFixed(2)}</div>
-      <div>Food: {food}</div>
+      {food > 0 ? (
+        <div>Food: {food}</div>
+      ) : (
+        <div>Hunger: {hungerLevel(state)}</div>
+      )}
       <div>Embryos: {embryos}</div>
       {needsPowerManagement(state) && (
         <div className="power">
