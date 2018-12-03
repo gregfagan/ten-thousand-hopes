@@ -21,6 +21,7 @@ import {
   applyTo,
   view,
   negate,
+  lensProp,
 } from 'ramda'
 import { removeUnlessLast, rand, clamp } from '../ramda-ext'
 import { power } from './power'
@@ -58,12 +59,13 @@ const log = curry((time, supplemental = false) => description =>
   }.\n\n${description.trim()}`,
 )
 
+export const time = lensProp('time')
 const passTime = evolve({ time: inc })
 
-const crew = lensPath(['ship', 'crew'])
+export const crew = lensPath(['ship', 'crew'])
 export const kill = count => over(crew, subtract(__, count))
 
-const waste = lensPath(['ship', 'waste'])
+export const waste = lensPath(['ship', 'waste'])
 const recycleWaste = chain(
   set(waste),
   compose(
@@ -80,7 +82,7 @@ const recycleWaste = chain(
   ),
 )
 
-const food = lensPath(['ship', 'food'])
+export const food = lensPath(['ship', 'food'])
 const growFood = chain(
   over(food),
   compose(
@@ -100,7 +102,7 @@ const eatFood = chain(
   ),
 )
 
-const embryos = lensPath(['ship', 'embryos'])
+export const embryos = lensPath(['ship', 'embryos'])
 const refridgerateEmbryos = chain(
   set(embryos),
   compose(
@@ -118,6 +120,15 @@ const refridgerateEmbryos = chain(
     ]),
   ),
 )
+export const destroyEmbryos = n =>
+  chain(
+    set(embryos),
+    compose(
+      clamp(0, Infinity),
+      add(-n),
+      view(embryos),
+    ),
+  )
 
 export const nextEvent = state => {
   const eventIdx = findIndex(event => event.condition(state))(

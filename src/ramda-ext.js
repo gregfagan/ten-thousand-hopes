@@ -15,6 +15,8 @@ import {
   add,
   converge,
   pipe,
+  view,
+  curryN,
 } from 'ramda'
 
 export const isLast = index =>
@@ -50,3 +52,18 @@ export const clamp = (lower, upper) =>
     min(upper),
     max(lower),
   )
+
+// from the cookbook
+export const lensEq = curryN(3, (lens, val, data) =>
+  pipe(
+    view(lens),
+    equals(val),
+  )(data),
+)
+export const lensSatisfies = curryN(3, (predicate, lens, data) =>
+  pipe(
+    view(lens),
+    predicate,
+    equals(true),
+  )(data),
+)

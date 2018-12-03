@@ -1,15 +1,37 @@
 import {
   propEq,
+  pathEq,
+  cond,
   pipe,
   identity,
   always,
   T,
   prepend,
   evolve,
-  ifElse,
+  allPass,
+  when,
+  gt,
+  gte,
+  partialRight,
+  view,
+  equals,
+  compose,
+  not,
+  both,
+  __,
 } from 'ramda'
+
+import { lensEq, lensSatisfies } from '../ramda-ext'
 import initialState from './state'
-import step, { nextEvent, kill } from './sim'
+import step, {
+  time,
+  nextEvent,
+  crew,
+  kill,
+  waste,
+  embryos,
+  destroyEmbryos,
+} from './sim'
 import { reallocate } from './power'
 
 const event = (
@@ -24,14 +46,6 @@ const event = (
   isOutcome,
 })
 
-const outcomeEvent = description =>
-  event(description, undefined, undefined, true)
-
-const prependOutcomeEvent = description =>
-  evolve({
-    possibleEvents: prepend(outcomeEvent(description)),
-  })
-
 const option = (
   text,
   outcome = undefined,
@@ -41,18 +55,139 @@ const option = (
   text,
   effect: pipe(
     effect,
-    outcome ? prependOutcomeEvent(outcome) : identity,
-    ifElse(always(stepAfter && !outcome), step, nextEvent),
+    outcome
+      ? pipe(
+          prependOutcomeEvent(outcome),
+          nextEvent,
+        )
+      : stepAfter
+      ? step
+      : identity,
   ),
 })
 
+const restartOption = option('Start over', undefined, () => initialState, false)
+
+const terminalEvent = partialRight(event, [[restartOption], false])
+
+const outcomeEvent = description =>
+  event(description, undefined, undefined, true)
+
+const prependOutcomeEvent = description =>
+  evolve({
+    possibleEvents: prepend(outcomeEvent(description)),
+  })
+
+const radiationEventOutcome = crewDeaths =>
+  pipe(
+    kill(crewDeaths),
+    destroyEmbryos(1486),
+  )
+
+const colonyThrives = lensSatisfies(gte(__, 25), crew)
+const colonySurvives = lensSatisfies(gte(__, 8), crew)
+const colonyDespair = lensSatisfies(gt(__, 1), crew)
+
+const colonyOutcome = cond([
+  [
+    colonyThrives,
+    always(
+      `Not everyone made it, but there are enough of us left that we should be able to build up a healthy colony. With the living crew, we have enough personnel to work all of the equipment that was sent ahead of us, and we can excavate and fortify ourselves from the sun's radiation. It's not Earth, but after that journey, there is no group of people I'd rather be around.`,
+    ),
+  ],
+  [
+    colonySurvives,
+    always(
+      `We took quite a beating to get here. There are still enough of us -- just barely -- to operate the equipment and get a settlement going. Unfortunately we won't be able to fill every job. Survival is going to be rough, but we just might be able to do it.`,
+    ),
+  ],
+  [
+    colonyDespair,
+    always(
+      `Only a few of us survived. I've tried to keep their hopes up, but sooner or later they'll figure out that there aren't enough of us to sustain ourselves; too much work and too few people. This was it. Humanity's last stand. At least we have each other.`,
+    ),
+  ],
+  [
+    T,
+    always(
+      `It's just me. I'm all alone. I'll never see another person again. I'm not sure how long I'll last... not very. What's the point though? There's no way I can carry on. Could I have saved us? What if I had chosen differently? I'm humanity's final failure.`,
+    ),
+  ],
+])
+
+const colonyTooSmall = compose(
+  not,
+  colonySurvives,
+)
+const humanityThrives = lensSatisfies(gte(__, 4000), embryos)
+const humanitySurvives = lensSatisfies(gte(__, 1000), embryos)
+const tooFewEmbryos = lensSatisfies(gte(__, 1), embryos)
+const noEmbryos = lensEq(embryos, 0)
+
+const humanitysOutcome = cond([
+  [
+    noEmbryos,
+    always(
+      `Just getting to Mars was not the point. We have no future for humanity without those embryos. What could I have done differently? How many could have been saved? I guess I'll have the rest of my life to wonder. We had a good run. Achieved some incredible things... but the last human child has already died, and there is no future...`,
+    ),
+  ],
+  [
+    colonyTooSmall,
+    always(
+      `The embryos are irrelevant. There's not enough people left to operate the equipment and raise the children. That's it then. The end of the species.`,
+    ),
+  ],
+  [
+    humanityThrives,
+    always(
+      `Humanity has hope. We have enough embryos to restart and a large enough colony to support them. Mars is harsh, and not Earth, but we are survivors. We will rebuild, we will forge on.`,
+    ),
+  ],
+  [
+    humanitySurvives,
+    always(
+      `We've lost a lot of our future children and their genetic diversity. There might still be enough for us to build a stable population, but it is far from certain. Luckily there's enough crew around to help raise them and give us the best shot we can hope for, at least with what we have left. Here's to hope.`,
+    ),
+  ],
+  [
+    tooFewEmbryos,
+    always(
+      `The population projections aren't good for the number of embryos that survived. We can raise the next generation, but most likely there will be a collapse not long after. We'll have to make the best of our limited time left as a species... we tried. We tried so hard. It just wasn't enough.`,
+    ),
+  ],
+])
+
 const terminalEvents = [
-  event('You have arrived at Mars.', propEq('time', 50), [
-    option('Start over', undefined, () => initialState, false),
-  ]),
+  terminalEvent(
+    state => `
+Mars at last.
+
+${colonyOutcome(state)}
+
+${humanitysOutcome(state)}
+
+This will be my final log. The ship is grounded and I'm not a commander anymore. I'm just a civilian... a Martian. If only the people of Earth could see it.
+`,
+    propEq('time', 50),
+  ),
+  terminalEvent(
+    `
+Can't... go... on...
+`,
+    lensEq(crew, 0),
+  ),
+  terminalEvent(
+    `
+cnt breath help hlp helsiojkdmxc v
+`,
+    lensEq(waste, 1),
+  ),
 ]
 
 export default [
+  //
+  // Game start
+  //
   event(`
 Does it even make sense to talk of the date on Earth anymore? The meteor completely annihilated it. Oh God... how can this be happening? It's all gone so fast. We've had less than a year to prepare, to grieve and accept our fate, but nothing can prepare you for actually witnessing it.
 
@@ -61,7 +196,14 @@ This rocket, its fifty crew, and our cargo of cyrogenically frozen embryos repre
 NASA's best only gave us "something south of 20%" chances. I think they were actually trying to give us hope. With as little warning as we had, it's a miracle we got this rocket in the sky at all. Let's hope it holds together.
 
 I've never been much for religion, but I'm praying now. Please, God, have mercy on our poor souls...`),
+  //
+  // Game end
+  //
   ...terminalEvents,
+
+  //
+  // Other events
+  //
   event(
     `
 Trouble already. There was a violent collision, the whole ship shook worse than lift off. It was probably debris knocked out of earth orbit by the impact. It wouldn't take much delta V for even a satellite screw to end this mission before we've barely left the neighborhood.
@@ -126,5 +268,62 @@ Let's hope it's not worse.
     ],
   ),
 
+  event(
+    `
+Things keep getting worse. We got hit with an unxpected blast of radiation from a solar flare. The ship is shielded as best as it can be but some sections had to be left more exposed -- in particular, one of the lower sections of cryo storage was extremely exposed. We've lost all of the embryos there, just under 1,500 of them. At this point that represents a significant portion of humanity, which makes that solar flare one of the greatest tragedies, behind, of course, the meteor.
+
+It's worse than that. The five crewmembers that were there -- Ackerman, Nguyen, O'Brien, Rosenfield, and Kraus -- were badly injured. Dr. Amin tells me the dose they received was definitely mortal. The cries of pain... you can hear everything in this ship. She gives them only a few months at most.
+
+Rosenfield, when he was lucid, realized his fate and asked to be given a less painful death. I can't say I blame him. Nguyen overheard and was shocked -- despite the pain he wants to hang on and fight for his life. Amin tells me that's unrealistic.
+
+The other three are comatose and probably won't ever wake.
+
+They have no future, but in the present they're still consuming the same share of food as the rest of us. Should I grant Rosenfield his request? Should I euthanize all of them? This mission isn't getting any easier.
+
+God what a horror.
+`,
+    allPass([
+      lensSatisfies(gte(__, 25), time),
+      lensSatisfies(gte(__, 7), crew),
+      pipe(
+        Math.random,
+        gt(__, 0.8),
+      ),
+    ]),
+    [
+      option(
+        'Euthanize Rosenfield',
+        `
+I'm going to grant Rosenfield his wish. It's the only humane thing to do, and I can't bear to see him suffer. Nguyen still wants to hang on, and the others -- well I don't feel right making that kind of choice for them. Who knows, there's always a chance... and we need as much hope as we can get right now.
+`,
+        radiationEventOutcome(1),
+      ),
+      option(
+        'Euthanize all of them',
+        `
+I have to be realistic. We're barely holding on as it is, and it was tragic what happened to them, but we can't save them now. The less resources we consume the better chance we have of making it to Mars.
+
+Rosenstein will get his wish. Nguyen... I ordered Amin to do it when he was sleeping. I think it's better for him and the rest of us this way.
+
+The others, I can only hope their souls forgive me for what I've done. Sacrifices must be made.
+`,
+        radiationEventOutcome(5),
+      ),
+      option(
+        'Do nothing',
+        `
+Rosenfield and Nguyen, though in pain, are still occasionally lucid. They have some time left in their lives, and while they're members of my crew I still need their help. No, they won't be servicing the life support or cyro systems, but they have valuable knowledge that we can't just give up.
+
+It will be tough for them, but this is a mission of survival. Perseverence is paramount and the crew will be well served by their example of sacrifice.
+
+The truth is, after everything we've been through, I just can't bring myself to give the order. Every human life seems too precious to forsake.
+`,
+        radiationEventOutcome(0),
+      ),
+    ],
+  ),
+  //
+  // If no other event happened this step
+  //
   event('Nothing of interest to report.'),
 ]
