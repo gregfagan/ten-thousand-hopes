@@ -17,6 +17,8 @@ import {
   equals,
   compose,
   not,
+  over,
+  add,
   both,
   __,
 } from 'ramda'
@@ -31,6 +33,7 @@ import step, {
   waste,
   embryos,
   destroyEmbryos,
+  intensiveCare,
 } from './sim'
 import { reallocate } from './power'
 
@@ -81,6 +84,7 @@ const prependOutcomeEvent = description =>
 const radiationEventOutcome = crewDeaths =>
   pipe(
     kill(crewDeaths),
+    over(intensiveCare)(add(5 - crewDeaths)),
     destroyEmbryos(1486),
   )
 
@@ -278,7 +282,9 @@ Rosenfield, when he was lucid, realized his fate and asked to be given a less pa
 
 The other three are comatose and probably won't ever wake.
 
-They have no future, but in the present they're still consuming the same share of food as the rest of us. Should I grant Rosenfield his request? Should I euthanize all of them? This mission isn't getting any easier.
+Here's the problem: the intensive care equipment we're running to keep them alive drastically reduces the efficency of the other life support systems.
+
+They have no future, but in the present they're stretching our already tight resources to the breaking point. Should I grant Rosenfield his request? What about the rest of them? Do we shoulder the burden of keeping them alive, when we're doomed to fail? This mission isn't getting any easier.
 
 God what a horror.
 `,
@@ -299,7 +305,12 @@ I'm going to grant Rosenfield his wish. It's the only humane thing to do, and I 
         radiationEventOutcome(1),
       ),
       option(
-        'Euthanize all of them',
+        'Euthanize all but Nguyen',
+        `Rosenfield wants out, so I'm going to let him go. Nguyen wants to stay and fight. Truly admirable, so he will stay. The others -- with no chance of recovery and the strain on our resources, I've made the difficult decision to let them go too. May they find the peace we all seek.`,
+        radiationEventOutcome(4),
+      ),
+      option(
+        'Euthanize them all',
         `
 I have to be realistic. We're barely holding on as it is, and it was tragic what happened to them, but we can't save them now. The less resources we consume the better chance we have of making it to Mars.
 

@@ -21,4 +21,6 @@ export default nextEvent({
 
   currentEvent: undefined,
   possibleEvents: events,
+
+  intensiveCareCount: 0,
 })

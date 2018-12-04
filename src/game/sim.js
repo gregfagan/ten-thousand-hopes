@@ -36,7 +36,7 @@ import { power } from './power'
 
 const START_DATE = new Date(Date.UTC(2085, 11, 2))
 const WASTE_BUILDUP_RATE = 0.25
-const FOOD_GROWTH_RATE = (100 * 2) / 3
+const FOOD_GROWTH_RATE = 60
 const EMBRYO_THAW_RATE = 385
 const HUNGER_BEFORE_DEATH = 4
 
@@ -74,6 +74,7 @@ const passTime = evolve({ time: inc })
 export const crew = lensPath(['ship', 'crew'])
 export const kill = count =>
   compose(
+    over(crew, clamp(0, 50)),
     over(crew, subtract(__, count)),
     when(
       hungry,
@@ -82,18 +83,25 @@ export const kill = count =>
   )
 
 export const waste = lensPath(['ship', 'waste'])
+export const intensiveCare = lensProp('intensiveCareCount')
 const recycleWaste = chain(
   set(waste),
   compose(
     clamp(0, 1),
     converge(add, [
-      view(waste),
       compose(
-        rand(0.2),
-        multiply(2 * WASTE_BUILDUP_RATE),
-        subtract(0.55),
-        power('lifeSupport'),
+        multiply(0.03),
+        view(intensiveCare),
       ),
+      converge(add, [
+        view(waste),
+        compose(
+          rand(0.2),
+          multiply(2 * WASTE_BUILDUP_RATE),
+          subtract(0.55),
+          power('lifeSupport'),
+        ),
+      ]),
     ]),
   ),
 )
