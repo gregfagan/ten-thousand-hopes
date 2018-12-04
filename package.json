@@ -1,10 +1,12 @@
 {
-  "name": "to-mars",
+  "name": "ten-thousand-hopes",
+  "homepage": "https://gregfagan.com/ten-thousand-hopes",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
     "@emotion/core": "^10.0.1",
     "@emotion/styled": "^10.0.1",
+    "gh-pages": "^2.0.1",
     "prettier": "^1.15.3",
     "ramda": "^0.26.1",
     "react": "^16.6.3",
@@ -15,7 +17,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "predeploy": "yarn run build",
+    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": "react-app"

@@ -1,6 +1,5 @@
 import {
   propEq,
-  pathEq,
   cond,
   pipe,
   identity,
@@ -9,17 +8,13 @@ import {
   prepend,
   evolve,
   allPass,
-  when,
   gt,
   gte,
   partialRight,
-  view,
-  equals,
   compose,
   not,
   over,
   add,
-  both,
   __,
 } from 'ramda'
 
